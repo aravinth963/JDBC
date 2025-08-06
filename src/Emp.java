@@ -19,7 +19,11 @@ public class Emp {
 		//Insert_usingPST();
 		//Callable();
 		//Callable_with_parameter();
-		GetEmpNameById();
+		//GetEmpNameById();
+		//commit_demo1();
+		//commit_demo2();
+		//batch_demo();
+		rollback_demo();
 	}
 		public static void Readble_records() throws Exception {
 			
@@ -179,6 +183,115 @@ public static void GetEmpNameById() throws Exception {
 	 
 	 System.out.println(cs.getString(2));
 	 
+	 con.close();
+}
+
+//commit vs autocommit
+
+public static void commit_demo1() throws Exception {
+	
+	String url = "jdbc:mysql://localhost:3306/testdb";
+	String username = "javadev";
+	String password = "Java@1234";
+	
+	String query1 = "update employee set salary = 10 where id = 1";
+	String query2 = "update employee set salary = 10 where id = 2";
+	 
+	Connection con = DriverManager.getConnection(url,username,password);
+	Statement st = con.createStatement();
+	int row1 = st.executeUpdate(query1);
+	int row2 = st.executeUpdate(query2);
+	 
+	System.out.println("rows affected "+ row1);
+	System.out.println("rows affected "+ row2);
+	 con.close();
+}
+
+public static void commit_demo2() throws Exception {
+	
+	String url = "jdbc:mysql://localhost:3306/testdb";
+	String username = "javadev";
+	String password = "Java@1234";
+	
+	String query1 = "update employee set salary = 0 where id = 1";
+	String query2 = "updat employee set salary = 0 where id = 2"; //update is wrong here
+	 
+	Connection con = DriverManager.getConnection(url,username,password);
+	con.setAutoCommit(false);
+	Statement st = con.createStatement();
+	
+	int row1 = st.executeUpdate(query1);
+	System.out.println("rows affected "+ row1);
+	
+	int row2 = st.executeUpdate(query2);
+	System.out.println("rows affected "+ row2);
+	
+	if(row1 > 0 && row2 > 0) {
+		con.commit();
+	}
+	 con.close();
+}
+
+//batch 
+
+public static void batch_demo() throws Exception {
+	
+	String url = "jdbc:mysql://localhost:3306/testdb";
+	String username = "javadev";
+	String password = "Java@1234";
+	
+	String query1 = "update employee set salary = 1 where id = 1";
+	String query2 = "update employee set salary = 1 where id = 2"; 
+	String query3 = "update employee set salary = 1 where id = 3";
+	String query4 = "update employee set salary = 1 where id = 4";
+	 
+	Connection con = DriverManager.getConnection(url,username,password);
+	Statement st = con.createStatement();
+	
+	st.addBatch(query1);
+	st.addBatch(query2);
+	st.addBatch(query3);
+	st.addBatch(query4);
+	
+	int[] result = st.executeBatch();
+	
+	for(int i:result) {
+		System.out.println("rows affected " + i);
+	}
+	 con.close();
+}
+
+//rollback
+
+public static void rollback_demo() throws Exception {
+	
+	String url = "jdbc:mysql://localhost:3306/testdb";
+	String username = "javadev";
+	String password = "Java@1234";
+	
+	String query1 = "update employee set salary = 2 where id = 1";
+	String query2 = "update employee set salary = 2 where id = 2"; 
+	String query3 = "update employee set salary = 2 where id = 3";
+	String query4 = "update employee set salary = 2 where id = 4"; //if one wrong all back to before value
+	 
+	Connection con = DriverManager.getConnection(url,username,password);
+	con.setAutoCommit(false);
+	Statement st = con.createStatement();
+	
+	st.addBatch(query1);
+	st.addBatch(query2);
+	st.addBatch(query3);
+	st.addBatch(query4);
+	
+	int[] result = st.executeBatch();
+	
+	for(int i:result) {
+		if(i>0)
+			continue;
+		else
+			con.rollback();
+	}
+	con.commit();
 	 con.close();
 }
 }
