@@ -23,7 +23,7 @@ public class Emp {
 		//commit_demo1();
 		//commit_demo2();
 		//batch_demo();
-		rollback_demo();
+		//rollback_demo();
 	}
 		public static void Readble_records() throws Exception {
 			
